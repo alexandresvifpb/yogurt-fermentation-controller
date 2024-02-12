@@ -1,0 +1,5 @@
+dependencies:
+  idf: ">=4.4"
+  # esp_lcd_sh1107: "^1"
+  ssd1306: "^1.0.5"
+  
