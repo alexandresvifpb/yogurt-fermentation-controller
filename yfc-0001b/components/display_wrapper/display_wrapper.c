@@ -1,8 +1,17 @@
-#include <stdio.h>
-#include <esp_err.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
+/**
+ * @file display_wrapper.c
+ * @brief Implementation of wrapper functions for SSD1306 display using ESP-IDF's I2C driver.
+ *
+ * Provides implementation for initialization, clearing the display, writing messages, and deinitialization
+ * of the SSD1306 OLED displays, abstracting the underlying SSD1306 and I2C driver details.
+ * @author alexandre sales vasconcelos (alexandre.vasconcelos@ifpb.edu.br)
+ * @version 0.1
+ * @date 2024-02-15
+ *
+ * @copyright Copyright (c) 2024
+ */
 
+#include <esp_err.h>
 #include "display_wrapper.h"
 
 // foi preciso colocar esse ifndef para que o compilador nao reclamasse
@@ -17,8 +26,22 @@
 #define DEFAULT_I2C_MASTER_FREQ_HZ 100000   /*!< I2C master clock frequency */
 
 static ssd1306_handle_t ssd1306_dev = NULL;
+static const char* TAG = "display_wrapper";
 
-// Inicializa o display SSD1306
+/**
+ * @brief Initializes the SSD1306 display with custom configuration.
+ *
+ * Detailed description of how the display is initialized with custom parameters including
+ * setting up the I2C driver, configuring the GPIO pins, and initializing the SSD1306 library.
+ *
+ * @param display Pointer to the display_t structure to be initialized.
+ * @param i2c_port I2C port number to be used for communication.
+ * @param scl_pin GPIO number for I2C SCL line.
+ * @param sda_pin GPIO number for I2C SDA line.
+ * @param rst_pin GPIO number for the display reset line.
+ * @param clock_speed Clock speed for the I2C communication.
+ * @return esp_err_t ESP_OK on success, error code otherwise.
+ */
 esp_err_t display_wrapper_init(display_t *display, i2c_port_t i2c_port, gpio_num_t scl_pin, gpio_num_t sda_pin, gpio_num_t rst_pin, uint32_t clock_speed) 
 {
     // Configurar as GPIOs para o sinais de clock (SCL) e dados (SDA) do I2C e sinal de reset (RST) do display
@@ -73,7 +96,15 @@ esp_err_t display_wrapper_init(display_t *display, i2c_port_t i2c_port, gpio_num
     return ESP_OK;
 }
 
-// Inicializa o display SSD1306 com os pinos e a velocidade de clock default
+/**
+ * @brief Initializes the SSD1306 display with default configuration.
+ *
+ * Initializes the display using predefined default settings for the I2C port, GPIO pins,
+ * and clock speed. Useful for standard setups and quick starts.
+ *
+ * @param display Pointer to the display_t structure to be initialized.
+ * @return esp_err_t ESP_OK on success, error code otherwise.
+ */
 esp_err_t ssd1306_wrapper_init_default(display_t *display) 
 {
     if (!display) {
@@ -85,7 +116,14 @@ esp_err_t ssd1306_wrapper_init_default(display_t *display)
     return display_wrapper_init(display, DEFAULT_I2C_MASTER_NUM, DEFAULT_I2C_MASTER_SCL_IO, DEFAULT_I2C_MASTER_SDA_IO, DEFAULT_RST_PIN, DEFAULT_I2C_MASTER_FREQ_HZ);
 }
 
-// Limpa o display
+/**
+ * @brief Clears the SSD1306 display.
+ *
+ * Sends a command to clear all pixels on the display, effectively blanking the screen.
+ *
+ * @param display Pointer to the initialized display_t structure.
+ * @return esp_err_t ESP_OK on success, error code otherwise.
+ */
 esp_err_t display_wrapper_clear(display_t *display) 
 {
     ssd1306_refresh_gram(display->ssd1306_dev);  // Atualizar a memória de vídeo
@@ -93,7 +131,20 @@ esp_err_t display_wrapper_clear(display_t *display)
     return ESP_OK;
 }
 
-// Escreve uma mensagem no display
+/**
+ * @brief Writes a message to the SSD1306 display.
+ *
+ * Writes the specified message at the given position on the display using the specified
+ * font size and display mode. Supports positioning and basic text formatting.
+ *
+ * @param display Pointer to the initialized display_t structure.
+ * @param message Null-terminated string to be displayed.
+ * @param Xpos X position on the display where the message starts.
+ * @param Ypos Y position on the display where the message starts.
+ * @param size Font size to be used for the message.
+ * @param mode Display mode (e.g., normal or inverse).
+ * @return esp_err_t ESP_OK on success, error code otherwise.
+ */
 esp_err_t display_wrapper_write(display_t *display, const char* message, uint8_t Xpos, uint8_t Ypos, uint8_t size, uint8_t mode) 
 {
 
@@ -109,7 +160,15 @@ esp_err_t display_wrapper_write(display_t *display, const char* message, uint8_t
     return ESP_OK;
 }
 
-// Desaloca qualquer recurso e desliga o display
+/**
+ * @brief Deinitializes the SSD1306 display.
+ *
+ * Frees up resources used by the display and the I2C driver, and resets the display hardware.
+ * It is recommended to call this function before the application terminates.
+ *
+ * @param display Pointer to the initialized display_t structure.
+ * @return esp_err_t ESP_OK on success, error code otherwise.
+ */
 esp_err_t display_wrapper_deinit(display_t *display) 
 {
     ssd1306_delete(display->ssd1306_dev);
