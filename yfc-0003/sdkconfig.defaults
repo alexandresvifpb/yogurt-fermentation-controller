@@ -1,0 +1,9 @@
+# This file was generated using idf.py save-defconfig. It can be edited manually.
+# Espressif IoT Development Framework (ESP-IDF) Project Minimal Configuration
+#
+CONFIG_XTAL_FREQ_26=y
+# CONFIG_XTAL_FREQ_40 is not set
+CONFIG_XTAL_FREQ=26
+CONFIG_ESP32_XTAL_FREQ_26=y
+# CONFIG_ESP32_XTAL_FREQ_40 is not set
+CONFIG_ESP32_XTAL_FREQ=26
